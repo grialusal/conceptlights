@@ -21,6 +21,10 @@ services:
         hostname: elasticsearch
         environment:
             - cluster.name=conceptlights
+            - http.cors.enabled=true
+            - http.cors.allow-origin=http://localhost:8080
+            - http.cors.allow-headers=Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With
+            - http.cors.allow-credentials=true
             - bootstrap.memory_lock=true
             - "ES_JAVA_OPTS=-Xms750m -Xmx750m"
         ports:
