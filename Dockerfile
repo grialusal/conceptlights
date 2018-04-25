@@ -10,8 +10,7 @@ RUN yarn
 WORKDIR /app
 ADD . /app
 
-EXPOSE 3000
+EXPOSE 8080
 EXPOSE 35729
 
-ENTRYPOINT ["/bin/bash", "/app/run.sh"]
-CMD ["start"]
+ENTRYPOINT ["yarn", "start"]
