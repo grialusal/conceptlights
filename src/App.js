@@ -4,6 +4,8 @@ import { ReactiveMap } from '@appbaseio/reactivemaps';
 
 import ReactDOM from "react-dom";
 
+import CountryMap from './CountryMap'
+
 import './App.css'
 
 
@@ -26,18 +28,7 @@ class App extends Component {
 							showSearch={true}/>
 					</div>
 					<div className="col">
-						<ReactiveMap
-							componentId="map"
-							dataField="location"
-							react={{
-								and: "questionnaires"
-							}}
-							onData={(result) => ({
-								label: result.main_lemma
-							})}
-							showMapStyles={true}
-
-						/>
+						<CountryMap />
 					</div>
 				</div>
 			</ReactiveBase>

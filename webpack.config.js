@@ -1,4 +1,6 @@
 const HtmlWebPackPlugin = require("html-webpack-plugin");
+const path = require('path');
+
 module.exports = {
   module: {
     rules: [
@@ -23,6 +25,9 @@ module.exports = {
         use: [ 'style-loader', 'css-loader' ]
       },
     ]
+  },
+  devServer : {
+    contentBase: path.resolve(__dirname,"dist/geo")
   },
   plugins: [
     new HtmlWebPackPlugin({
