@@ -1,11 +1,9 @@
-// src/components/WorldMap.js
-
 import React, { Component } from "react"
 import { geoPath } from "d3-geo"
 import { feature } from "topojson-client"
 import { json } from "d3-fetch"
 
-class WorldMap extends Component {
+class CountryMap extends Component {
   constructor() {
     super()
     this.state = {
@@ -43,4 +41,4 @@ class WorldMap extends Component {
   }
 }
 
-export default WorldMap
+export default CountryMap
