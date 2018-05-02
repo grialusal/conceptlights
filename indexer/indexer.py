@@ -86,6 +86,13 @@ for root, dirs, files in os.walk(rootPath):
 			else:
 				continue
 
+			questionnaire = entry.findAll(
+								"ref", {"type": "fragebogenNummer"})
+			if len(questionnaire) > 0:
+				entryObj['questionnaire'] = questionnaire[0].string
+			else
+				continue
+
 			entryObj['main_lemma'] = str(entry.form.orth.string)
 			if len(entryObj['main_lemma']) == 0:
 				continue
@@ -100,12 +107,7 @@ for root, dirs, files in os.walk(rootPath):
 				entryObj['note'] = entry.note.text.replace('\n', '')
 
 			
-			questionnaire = entry.findAll(
-								"ref", {"type": "fragebogenNummer"})
-			if len(questionnaire) > 0:
-				entryObj['questionnaire'] = questionnaire[0].string
 
-			
 			source = entry.findAll(
 								"ref", {"type": "quelle"})
 			if len(source) > 0:
