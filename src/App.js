@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ReactiveBase, SingleList } from '@appbaseio/reactivesearch'
+import { ReactiveBase, ReactiveComponent, SingleList } from '@appbaseio/reactivesearch'
 import { ReactiveMap } from '@appbaseio/reactivemaps';
 
 import ReactDOM from "react-dom";
@@ -28,7 +28,21 @@ class App extends Component {
 							showSearch={true}/>
 					</div>
 					<div className="col">
-						<CountryMap />
+						<ReactiveComponent
+							componentId="CountryMap"
+							defaultQuery={() => ({
+								aggs: {
+									'questionnaire': {
+										terms: {
+											field: 'questionnaire.keyword',
+											size: 10,
+										},
+									},
+								},
+							})}
+						>
+							<CountryMap />
+						</ReactiveComponent>
 					</div>
 				</div>
 			</ReactiveBase>

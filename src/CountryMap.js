@@ -20,6 +20,7 @@ class CountryMap extends Component {
   }
   render() {
     const path = geoPath().projection(null)
+    console.log(this.props.aggregations)
     return (
       <svg width={ 960 } height={ 960 } viewBox="0 0 960 960">
         <g className="countries">
