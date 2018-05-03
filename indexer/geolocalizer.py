@@ -28,8 +28,11 @@ def process_place_node(soup, place_node):
 	else:
 		print('Place type was not expected')
 		return
+	if "," in place_node.placeName.string: #Take first name only, eg: Jenesien, San Genesio Atesino
+		query = query.format(lookup_table, place_node.placeName.string.split(",")[0])
+	else:
+		query = query.format(lookup_table, place_node.placeName.string)
 
-	query = query.format(lookup_table, place_node.placeName.string)
 	number_of_rows = db_cur.execute(query)
 	if number_of_rows > 0:
 		the_id = db_cur.fetchone()['id']
@@ -67,6 +70,7 @@ with open(listplace_file, "r", encoding="utf-8") as file:
 		process_place_node(soup, bundesland)
 	file.close()
 	print('Done')
-	with open(dest_file, "wb") as file:
-		file.write(soup.prettify("utf-8"))
+	with open(dest_file, "wb") as dest_file:
+		dest_file.write(soup.prettify("utf-8"))
+		dest_file.close()
 exit(0)
