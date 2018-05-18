@@ -12,14 +12,10 @@ def process_listplace_node(soup, listplace_node):
 
 def process_place_node(soup, place_node):
 	lookup_table = "dboe_1.{}"
-	query = "SELECT id FROM {} WHERE '{}' IN (nameKurz, nameLang);"
+	query = "SELECT id FROM {} WHERE '{}' IN (nameKurz, nameLang) or originaldaten like '%{}%';"
 
 	place_type = place_node.attrs['type']
-	if place_type == 'Bundesland':
-		lookup_table = lookup_table.format('region')
-	elif place_type == 'Großregion':
-		lookup_table = lookup_table.format('region')
-	elif place_type == 'Kleinregion':
+	if place_type == 'Bundesland' or place_type == 'Großregion' or place_type == 'Kleinregion':
 		lookup_table = lookup_table.format('region')
 	elif place_type == 'Gemeinde':
 		lookup_table = lookup_table.format('gemeinde')
@@ -29,9 +25,9 @@ def process_place_node(soup, place_node):
 		print('Place type was not expected')
 		return
 	if "," in place_node.placeName.string: #Take first name only, eg: Jenesien, San Genesio Atesino
-		query = query.format(lookup_table, place_node.placeName.string.split(",")[0])
+		query = query.format(lookup_table, place_node.placeName.string.split(",")[0], place_node.idno.string)
 	else:
-		query = query.format(lookup_table, place_node.placeName.string)
+		query = query.format(lookup_table, place_node.placeName.string, place_node.idno.string)
 
 	number_of_rows = db_cur.execute(query)
 	if number_of_rows > 0:
@@ -70,7 +66,9 @@ with open(listplace_file, "r", encoding="utf-8") as file:
 		process_place_node(soup, bundesland)
 	file.close()
 	print('Done')
-	with open(dest_file, "wb") as dest_file:
-		dest_file.write(soup.prettify("utf-8"))
+	with open(dest_file, "w") as dest_file:
+		dest_file.write(str(soup))
 		dest_file.close()
+
+conn.close()
 exit(0)
