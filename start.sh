@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+export TEI_DIR=~/Documents/TEI-XML-2018
+export MYSQL_DUMP=~/Documents/mysql_dump/
 
 # quick script to create and run docker image, with db migrations
 if [ -z ${TEI_DIR+x} ]; then 
