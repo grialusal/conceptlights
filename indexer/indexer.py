@@ -9,25 +9,25 @@ import re
 
 db_cur = None
 
-def process_listplace_node(index_soup, listplace_node):
+def process_listplace_node(listplace_soup, listplace_node):
 	results = {}
 	for place in listplace_node.find_all("place", recursive=False):
-		results.update(process_place_node(index_soup, place))
+		results.update(process_place_node(listplace_soup, place))
 	return results
 
-def process_place_node(index_soup, place_node):
+def process_place_node(listplace_soup, place_node):
 	result = {}
 
 	place_type = place_node.attrs['type']
 	listplace_node = place_node.find("listPlace", recursive=False)
 
 	if listplace_node:
-		result.update(process_listplace_node(index_soup, listplace_node))
+		result.update(process_listplace_node(listplace_soup, listplace_node))
 
 	mysql_id = None
 	#print(place_node.placeName.string, place_type)
 	
-	for entry in index_soup.find_all('placeName', text=place_node.placeName.string):
+	for entry in listplace_soup.find_all('placeName', text=place_node.placeName.string):
 		if entry.parent.get("type") == place_type and entry.parent.mysql_id:
 			mysql_id = entry.parent.mysql_id.string
 			if mysql_id:
@@ -38,7 +38,18 @@ def process_place_node(index_soup, place_node):
 					if point:
 						result.update({'location' : point})
 			break
-	
+	if 'ort' in result:
+		result.update({'resolution' : 5})
+	elif 'gemeinde' in result:
+		result.update({'resolution' : 4})
+	elif 'kleinregion' in result:
+		result.update({'resolution' : 3})
+	elif 'großregion' in result:
+		result.update({'resolution' : 2})
+	elif 'bundesland' in result:
+		result.update({'resolution' : 1})
+
+
 	return result
 
 def extract_geo_point(mysql_id):
@@ -94,11 +105,19 @@ def main():
 	actions = []
 
 	rootPath = './data'
-	pattern = 'r*.xml' #WIP: Test only with entries starting with 'r' for the moment
-	listplace_file = './data/helper_tables/listPlace-id.xml'
+	pattern = '*TEI-02.xml' #WIP: Test only with entries starting with 'r' for the moment
+	listplace_path = './data/helper_tables/listPlace-id.xml'
+	fragebogen_concepts_path = './data/frage-fragebogen-full-tgd01.xml'
 
-	with open(listplace_file, "r", encoding="utf-8") as list_place_file:
-		index_soup = BeautifulSoup(list_place_file, 'xml')
+	q_regex = r"^(\d+)(\w+)"
+	# q_head_regex = r"pc> (.*)<"
+
+
+
+	with open(listplace_path, "r", encoding="utf-8") as listplace_file, \
+	open(fragebogen_concepts_path, "r", encoding="utf-8") as fragebogen_concepts_file:
+		listplace_soup = BeautifulSoup(listplace_file, 'xml')
+		fragebogen_concepts_soup = BeautifulSoup(fragebogen_concepts_file,'xml')
 
 		#Walk data dir extracting the different entries
 		for root, dirs, files in os.walk(rootPath):
@@ -111,7 +130,35 @@ def main():
 					questionnaire = entry.findAll(
 										"ref", {"type": "fragebogenNummer"})
 					if len(questionnaire) > 0:
-						entry_obj['questionnaire'] = questionnaire[0].string
+						entry_obj['questionnaire_title'] = questionnaire[0].string
+						match = re.match(q_regex, entry_obj['questionnaire_title'])
+						if match is not None:
+							entry_obj['questionnaire_number'] = match.group(1)
+							entry_obj['question'] = match.group(2)
+							print(entry_obj['questionnaire_number'], entry_obj['question'])
+							questionnaire_label = fragebogen_concepts_soup.find("label", text="Fragebogen " + entry_obj['questionnaire_number'])
+							if questionnaire_label:
+								questionnaire_head = questionnaire_label.parent					
+								entry_obj['questionnaire_label'] = questionnaire_head.contents[4]
+
+								questionnaire = questionnaire_head.parent
+								question = questionnaire.find('item', {"n" : entry_obj['question']})
+								if question: 
+									entry_obj['question_label'] = question.label.string
+									#label ?
+									concepts = question.find_all('seg', attrs={"xml:id":True})
+									if len(concepts) > 0:
+										# print('Question {} relates to the following concepts:'.format(item.get('n')))
+										concepts_set = set()
+										for concept in concepts:
+											# print(concept.string)
+											if concept.string:
+												concepts_set.add(concept.string)
+										entry_obj['question_concepts'] =  list(concepts_set)
+								else:
+									continue
+							else:
+								print('Questionnaire ' + entry_obj['questionnaire_number'] + ' could not be found')
 					else:
 						continue
 					
@@ -148,7 +195,7 @@ def main():
 						if not list_place:
 							continue
 						else:
-							geo_dict = process_listplace_node(index_soup, list_place)
+							geo_dict = process_listplace_node(listplace_soup, list_place)
 							entry_obj.update(geo_dict)		
 					
 					print(entry_obj)
