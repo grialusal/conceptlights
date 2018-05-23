@@ -12,7 +12,6 @@ def process_listplace_node(soup, listplace_node):
 
 def process_place_node(soup, place_node):
 	lookup_table = "dboe_1.{}"
-	query = "SELECT id FROM {} WHERE '{}' IN (nameKurz, nameLang) or originaldaten like '%{}%';"
 
 	place_type = place_node.attrs['type']
 	if place_type == 'Bundesland' or place_type == 'Großregion' or place_type == 'Kleinregion':
@@ -24,14 +23,23 @@ def process_place_node(soup, place_node):
 	else:
 		print('Place type was not expected')
 		return
-	if "," in place_node.placeName.string: #Take first name only, eg: Jenesien, San Genesio Atesino
-		query = query.format(lookup_table, place_node.placeName.string.split(",")[0], place_node.idno.string)
+	place_name = ''
+	if "," in place_node.placeName.string: #Take first name only, eg: Jenesien, San Genesio Atesino 
+		place_name = place_node.placeName.string.split(",")[0]
 	else:
-		query = query.format(lookup_table, place_node.placeName.string, place_node.idno.string)
+		place_name = place_node.placeName.string
+
+	if place_node.idno.string:
+		query = "SELECT id FROM {} WHERE '{}' IN (nameKurz, nameLang) or originaldaten\
+		 like '%{}%';".format(lookup_table, place_name, place_node.idno.string)
+	else:
+		query = "SELECT id FROM {} WHERE '{}' IN (nameKurz, nameLang);"\
+		.format(lookup_table, place_name, place_node.idno.string)
 
 	number_of_rows = db_cur.execute(query)
 	if number_of_rows > 0:
 		the_id = db_cur.fetchone()['id']
+		
 		# region_node.find('placeName').inser_after(place_node.new_tag('mysql_id', the_id))
 		result = place_node.find("listPlace", recursive=False)
 		if result:
@@ -69,6 +77,7 @@ with open(listplace_file, "r", encoding="utf-8") as file:
 	with open(dest_file, "w") as dest_file:
 		dest_file.write(str(soup))
 		dest_file.close()
-
+	
+db_cur.close()
 conn.close()
 exit(0)
