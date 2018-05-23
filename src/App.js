@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ReactiveBase, ReactiveComponent, SingleList, TextField } from '@appbaseio/reactivesearch'
+import { ReactiveBase, ReactiveComponent, SingleList, TextField, MultiDropdownList} from '@appbaseio/reactivesearch'
 import { ReactiveMap } from '@appbaseio/reactivemaps';
 
 import ReactDOM from "react-dom";
@@ -27,54 +27,33 @@ class App extends Component {
 							  	dataField="main_lemma"
 							  	placeholder="Type a lemma"
 							  	showClear={true}
-							  	beforeValueChange={
-								    function(value) {
-								      // called before the value is set
-								      // returns a promise
-								      return new Promise((resolve, reject) => {
-								        // update state or component props
-								        resolve()
-								        // or reject()
-								      })
-								    }
-								  }
-								onValueChange={
-								    function(value) {
-								      console.log("current value: ", value)
-								      // set the state
-								      // use the value with other js code
-								    }
-								  }
-								onQueryChange={
-								    function(prevQuery, nextQuery) {
-								      // use the query with other js code
-								      console.log('prevQuery', prevQuery);
-								      console.log('nextQuery', nextQuery);
-								    }
-								  }
+							 //  	customQuery={(value, props) => {
+							 //  		console.log(value)
+							 //  		value == '' ? "*" : value
+							 //  		return {"bool": {
+								//       	"must":
+								//       		[{"query_string":
+								//       			{"query":`main_lemma:${value}`,"analyze_wildcard":true,"default_field":"*"
+								//       		}}]
+								//     	}
+								// 	}}
+								// }
 							/>
 						</div>
 						<div className="row">
-							<SingleList
-								title="Questionnaires"
-								componentId="QuestionnaireList"
-								dataField="questionnaire.keyword"
-								size={10}
-								showSearch={true}
-								onValueChange={
-								    function(value) {
-								      console.log("current value: ", value)
-								      // set the state
-								      // use the value with other js code
-								    }
-								}
-								onQueryChange={
-								    function(prevQuery, nextQuery) {
-								      // use the query with other js code
-								      console.log('prevQuery', prevQuery);
-								      console.log('nextQuery', nextQuery);
-								    }
-								}
+							<TextField
+								title="Sense"
+							  	componentId="SenseTextField"
+							  	dataField="sense"
+							  	placeholder="Type a sense"
+							  	showClear={true}
+							/>
+						</div>
+						<div className="row">
+							<MultiDropdownList
+							  componentId="PosDropdown"
+							  dataField="pos.keyword"
+							  title="Grammatical form"
 							/>
 						</div>
 					</div>
@@ -82,11 +61,12 @@ class App extends Component {
 						<ReactiveComponent
 							componentId="CountryMap"
 							defaultQuery={() => ({
+								size: 10000,
 								aggs: {
 									gemeinde: {
 										terms: {
 											field: 'gemeinde.keyword',
-											size: 1000,
+											size: 10000,
 										},
 										aggs: {
 											'questionnaire': {
@@ -99,7 +79,7 @@ class App extends Component {
 								},
 							})}
 							react={{
-						      "and": ["QuestionnaireList", "LemmaTextField"]
+						      "and": ["LemmaTextField", "SenseTextField", "PosDropdown"]
 						    }}
 						>
 							<CountryMap />
