@@ -112,7 +112,7 @@ def main():
 	actions = []
 
 	rootPath = './data'
-	pattern = '[mnopq]*TEI-02.xml' #WIP: Test only with entries starting with 'm,n,o,p,q' for the moment
+	pattern = '[mnopq]*1_qdb-TEI-02.xml' #WIP: Test only with entries starting with 'm,n,o,p,q' for the moment
 	listplace_path = './data/helper_tables/listPlace-id.xml'
 	fragebogen_concepts_path = './data/frage-fragebogen-full-tgd01.xml'
 
@@ -137,8 +137,8 @@ def main():
 					questionnaire = entry.findAll(
 										"ref", {"type": "fragebogenNummer"})
 					if len(questionnaire) > 0:
-						entry_obj['questionnaire_title'] = questionnaire[0].string
-						match = re.match(q_regex, entry_obj['questionnaire_title'])
+						entry_obj['source_question_title'] = questionnaire[0].string
+						match = re.match(q_regex, entry_obj['source_question_title'])
 						if match:
 							entry_obj['questionnaire_number'] = match.group(1)
 							entry_obj['question'] = match.group(2)
