@@ -31,12 +31,17 @@ def process_place_node(listplace_soup, place_node):
 		if entry.parent.get("type") == place_type and entry.parent.mysql_id:
 			mysql_id = entry.parent.mysql_id.string
 			if mysql_id:
-				result.update({place_type.lower() : mysql_id})
-				if place_type == 'Ort':
-					result.update({'placeName': place_node.placeName.string})
-					point = extract_geo_point(mysql_id)
-					if point:
-						result.update({'location' : point})
+				if place_type == 'Großregion':
+					result.update({'grossregion' : mysql_id})
+				else:
+					result.update({place_type.lower() : mysql_id})
+					if place_type == 'Ort':
+						result.update({'place_name': place_node.placeName.string})
+						point = extract_geo_point(mysql_id)
+						if point:
+							result.update({'location' : point})
+			if "idno" not in result:
+				result.update({"idno" : entry.parent.idno.string})
 			break
 	if 'ort' in result:
 		result.update({'resolution' : 5})
@@ -48,6 +53,8 @@ def process_place_node(listplace_soup, place_node):
 		result.update({'resolution' : 2})
 	elif 'bundesland' in result:
 		result.update({'resolution' : 1})
+
+	
 
 
 	return result
@@ -105,7 +112,7 @@ def main():
 	actions = []
 
 	rootPath = './data'
-	pattern = '*TEI-02.xml' #WIP: Test only with entries starting with 'r' for the moment
+	pattern = '[mnopq]*TEI-02.xml' #WIP: Test only with entries starting with 'm,n,o,p,q' for the moment
 	listplace_path = './data/helper_tables/listPlace-id.xml'
 	fragebogen_concepts_path = './data/frage-fragebogen-full-tgd01.xml'
 
@@ -132,7 +139,7 @@ def main():
 					if len(questionnaire) > 0:
 						entry_obj['questionnaire_title'] = questionnaire[0].string
 						match = re.match(q_regex, entry_obj['questionnaire_title'])
-						if match is not None:
+						if match:
 							entry_obj['questionnaire_number'] = match.group(1)
 							entry_obj['question'] = match.group(2)
 							print(entry_obj['questionnaire_number'], entry_obj['question'])
@@ -144,7 +151,8 @@ def main():
 								questionnaire = questionnaire_head.parent
 								question = questionnaire.find('item', {"n" : entry_obj['question']})
 								if question: 
-									entry_obj['question_label'] = question.label.string
+									if question.label:
+										entry_obj['question_label'] = question.label.string
 									#label ?
 									concepts = question.find_all('seg', attrs={"xml:id":True})
 									if len(concepts) > 0:
