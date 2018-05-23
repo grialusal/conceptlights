@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { ReactiveBase, ReactiveComponent, SingleList, TextField, MultiDropdownList} from '@appbaseio/reactivesearch'
-import { ReactiveMap } from '@appbaseio/reactivemaps';
 
 import ReactDOM from "react-dom";
 
@@ -16,8 +15,7 @@ class App extends Component {
 			<ReactiveBase
 				app="dboe"
 				url="http://localhost:9200"
-				type="dboe-type"
-				mapKey="AIzaSyAe92NwI94op_5edlU9AH0XzHOP2cSqh6M">
+				type="dboe-type">
 				<div className="row">
 					<div className="col">
 						<div className="row">
