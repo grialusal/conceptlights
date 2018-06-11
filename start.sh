@@ -28,12 +28,12 @@ fi
 echo "TEI_DIR is set to $TEI_DIR"
 echo "MYSQL_DUMP is set to $MYSQL_DUMP" 
 
-docker-compose up -d --build
+docker-compose up --build
 
 sleep 5
 
 echo "Navigate to conceptlights with http://localhost:8080"
-if [ -z "$1" ]
-  then
-    docker attach conceptlights
-fi
+# if [ -z "$1" ]
+#   then
+#     docker attach conceptlights
+# fi
