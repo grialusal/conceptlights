@@ -1,5 +1,5 @@
 import React, { Component } from "react"
-import { geoPath } from "d3-geo"
+import { geoPath, geoConicEqualArea } from "d3-geo"
 import { feature } from "topojson-client"
 import { json } from "d3-fetch"
 import { scaleThreshold, scaleSequential } from "d3-scale"
@@ -16,10 +16,10 @@ class CountryMap extends Component {
     this.handleRegionHover = this.handleRegionHover.bind(this)
   }
   componentDidMount() {
-    json("./gemeinden-topo.json")
-      .then(gemeindenData => {
+    json("./municipalities-simple-topo.json")
+      .then(geodata => {
           this.setState({
-            worldData: feature(gemeindenData, gemeindenData.objects.gemeinden).features,
+            worldData: feature(geodata, geodata.objects.municipalities),
         })
       })
     // this.createMap()
@@ -30,48 +30,42 @@ class CountryMap extends Component {
   }
 
   handleRegionHover(regionIndex) {
-    console.log("Hovered on a region: ", this.state.worldData[regionIndex])
+    console.log("Hovered on a region: ", this.state.worldData.features[regionIndex])
   }
 
   createMap() {
-    // const nodeSelection = d3.select(this.node)
-    // const colorScale = d3.scaleThreshold().domain(d3.extent(this.props.aggregations.gemeinde.buckets, d => d.doc_count))
-    //                                       .range(d3.schemeBlues[9])
-    // nodeSelection.append("g")
-    //                 .attr("class", "gemeinde")
-    //                 .attr("key", "gemeinde")
-    //               selectAll("path")
 
 
   }
 
   render() {
-    const path = geoPath().projection(null)
-    console.log(this.props.hits, this.props.aggregations)
+    if (this.state.worldData.length == 0) {
+      return (<div> Loading...</div>)
+    }
+    const projection = geoConicEqualArea().parallels([40,50]).rotate([-13.8,0]).fitSize([this.props.width, this.props.height], this.state.worldData)
+    const path = geoPath().projection(projection)
     let colorScale = () => {}
-    if (this.props.aggregations) {
-      colorScale = scaleSequential(interpolatePiYG).domain(extent(this.props.aggregations.gemeinde.buckets, d => d.doc_count))
+    if (this.props.municipalities) {
+      colorScale = scaleSequential(interpolatePiYG).domain(extent(this.props.municipalities.buckets, d => d.doc_count))
     }
 
     const applyColor = function(colorScale, d) {
-      if (this.props.aggregations) {
-        const item = this.props.aggregations.gemeinde.buckets.filter(e => e.key == d.id).pop()
+      if (this.props.municipalities) {
+        const item = this.props.municipalities.buckets.filter(e => e.key == d.id).pop()
         return item ? colorScale(item.doc_count) : "white"
       } else return "white"
     }.bind(this)
     
-    // return <svg ref={node => this.node = node} width={500} height={960}>
 
-    // </svg>
     return (
-      <svg width={ 960 } height={ 960 } viewBox="0 0 960 960">
+      <svg width={this.props.width} height={this.props.height} viewBox={`0 0 ${this.props.width} ${this.props.height}`}>
         <g className="countries">
           {
-            this.state.worldData.map((d,i) => (
+            this.state.worldData.features.map((d,i) => (
               <path
                 key={ `path-${ i }` }
                 d={ path(d) }
-                className="gemeinde"
+                className="municipality"
                 style = {{
                   fill : applyColor(colorScale, d),
                   stroke : "black",

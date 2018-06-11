@@ -6,23 +6,22 @@ body {
 }
 
 .row {
-display: flex;
-flex-direction: row;
-width: 100%;
+  display: flex;
+  flex-direction: row;
 }
 
 .col {
   flex: 1;
-padding: 15px;
+  padding: 15px;
 }
 
 .row > .col:first-child {
-border-right: 1px solid #ccc;
-max-width: 30%;
+  border-right: 1px solid #ccc;
+  max-width: 15%;
 }
 
 .row > .col:last-child {
-background: #fafafa;
+/*background: #fafafa;*/
 }
 
 @media all and (max-width: 767px) {

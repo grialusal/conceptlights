@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import { ReactiveBase, ReactiveComponent, SingleList, TextField, MultiDropdownList} from '@appbaseio/reactivesearch'
 
 import ReactDOM from "react-dom";
-
-import CountryMap from './CountryMap'
+import VisWrapper from './VisWrapper'
 
 import './App.css'
 
@@ -57,30 +56,44 @@ class App extends Component {
 					</div>
 					<div className="col">
 						<ReactiveComponent
-							componentId="CountryMap"
+							componentId="ReactiveComponentWrapper"
 							defaultQuery={() => ({
 								size: 10000,
 								aggs: {
-									gemeinde: {
+									municipalities: {
 										terms: {
 											field: 'gemeinde.keyword',
 											size: 10000,
 										},
 										aggs: {
-											'questionnaire': {
+											questionnaire_number: {
 												terms: {
-													field: 'questionnaire_title.keyword',
+													field: 'questionnaire_number.keyword',
 												},
 											}
 										}
 									},
+									questionnaire_number: {
+										terms: {
+											field: 'questionnaire_number.keyword',
+											size: 100000
+										},
+										aggs: {
+											labels: {
+												terms: {
+													field: 'questionnaire_label.keyword',
+												},
+											}
+										}
+									}
 								},
 							})}
 							react={{
 						      "and": ["LemmaTextField", "SenseTextField", "PosDropdown"]
 						    }}
 						>
-							<CountryMap />
+							<VisWrapper width={1200} height={800}/>
+
 						</ReactiveComponent>
 					</div>
 				</div>

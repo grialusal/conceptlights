@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@appbaseio/reactivesearch": "^2.6.1",
+    "@weknow/react-bubble-chart-d3": "^1.0.9",
     "d3-fetch": "^1.1.0",
     "d3-geo": "^1.10.0",
     "d3-scale": "^2.0.0",
