@@ -29,6 +29,7 @@ module.exports = {
   devServer : {
     contentBase: path.resolve(__dirname,"dist/geo")
   },
+  devtool: "cheap-module-source-map",
   plugins: [
     new HtmlWebPackPlugin({
       template: "./src/index.html",
