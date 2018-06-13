@@ -6,8 +6,10 @@ from bs4 import BeautifulSoup
 import pymysql
 import json
 import re
+from stop_words import get_stop_words
 
 db_cur = None
+
 
 def process_listplace_node(listplace_soup, listplace_node):
 	results = {}
@@ -112,7 +114,7 @@ def main():
 	actions = []
 
 	rootPath = './data'
-	pattern = '[mnopq]*1_qdb-TEI-02.xml' #WIP: Test only with entries starting with 'm,n,o,p,q' for the moment
+	pattern = '*1_qdb-TEI-02.xml' #WIP: Test only with entries starting with 'm,n,o,p,q' for the moment
 	listplace_path = './data/helper_tables/listPlace-id.xml'
 	fragebogen_concepts_path = './data/frage-fragebogen-full-tgd01.xml'
 
@@ -125,6 +127,8 @@ def main():
 	open(fragebogen_concepts_path, "r", encoding="utf-8") as fragebogen_concepts_file:
 		listplace_soup = BeautifulSoup(listplace_file, 'xml')
 		fragebogen_concepts_soup = BeautifulSoup(fragebogen_concepts_file,'xml')
+
+		stop_words = get_stop_words('de')
 
 		#Walk data dir extracting the different entries
 		for root, dirs, files in os.walk(rootPath):
@@ -160,7 +164,7 @@ def main():
 										concepts_set = set()
 										for concept in concepts:
 											# print(concept.string)
-											if concept.string:
+											if concept.string is not None and concept.string not in stop_words and "." not in concept.string and len(concept.string) > 1:
 												concepts_set.add(concept.string)
 										entry_obj['question_concepts'] =  list(concepts_set)
 								else:

@@ -2,3 +2,4 @@ beautifulsoup4
 elasticsearch
 PyMySQL
 lxml
+stop_words
