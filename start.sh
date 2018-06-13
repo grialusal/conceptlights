@@ -9,28 +9,30 @@ if [ -z ${TEI_DIR+x} ]; then
 fi
 
 if [ ! -d "$TEI_DIR" ] || [ -z "$(ls -A $TEI_DIR)" ]; then
-	echo "$TEI_DIR does not exist or it is empty. Aborting.";
-	exit;
+	echo "$TEI_DIR does not exist or it is empty. Aborting."
+	exit
 fi
 
 if [ -z ${MYSQL_DUMP+x} ]; then 
-	echo "MYSQL_DUMP variable is not set. Try setting it first using 'export MYSQL_DUMP=/path/to/mysql_dump.sql'";
-	exit;
+	echo "MYSQL_DUMP variable is not set. Try setting it first using 'export MYSQL_DUMP=/path/to/mysql_dump.sql'"
+	exit
 fi
 
-if [! -e "$MYSQL_DUMP" ]
-then
-    echo "I couldn't find a sql dump in $MYSQL_DUMP. Try setting it first using 'export MYSQL_DUMP=/path/to/mysql_dump.sql'";
-	exit;
+if [ ! -e "$MYSQL_DUMP" ]; then
+    echo "I couldn't find a sql dump in $MYSQL_DUMP. Try setting it first using 'export MYSQL_DUMP=/path/to/mysql_dump.sql'"
+	exit
 fi
 
 
 echo "TEI_DIR is set to $TEI_DIR"
 echo "MYSQL_DUMP is set to $MYSQL_DUMP" 
 
-docker-compose up --build
 
-sleep 5
+if [ "$1" == "--build" ]; then
+	docker-compose up --build
+else
+	docker-compose up
+fi
 
 echo "Navigate to conceptlights with http://localhost:8080"
 # if [ -z "$1" ]
