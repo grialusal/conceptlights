@@ -39,19 +39,20 @@ class CountryMap extends Component {
   }
 
   render() {
+    console.log(this.props.aggregations)
     if (this.state.worldData.length == 0) {
       return (<div> Loading...</div>)
     }
     const projection = geoConicEqualArea().parallels([40,50]).rotate([-13.8,0]).fitSize([this.props.width, this.props.height], this.state.worldData)
     const path = geoPath().projection(projection)
     let colorScale = () => {}
-    if (this.props.municipalities) {
-      colorScale = scaleSequential(interpolatePiYG).domain(extent(this.props.municipalities.buckets, d => d.doc_count))
+    if (this.props.aggregations) {
+      colorScale = scaleSequential(interpolatePiYG).domain(extent(this.props.aggregations.municipalities.buckets, d => d.doc_count))
     }
 
     const applyColor = function(colorScale, d) {
-      if (this.props.municipalities) {
-        const item = this.props.municipalities.buckets.filter(e => e.key == d.id).pop()
+      if (this.props.aggregations) {
+        const item = this.props.aggregations.municipalities.buckets.filter(e => e.key == d.id).pop()
         return item ? colorScale(item.doc_count) : "white"
       } else return "white"
     }.bind(this)

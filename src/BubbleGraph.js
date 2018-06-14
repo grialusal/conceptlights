@@ -57,9 +57,13 @@ class BubbleGraph  extends Component {
 	}
 
 	render () {
-		console.log(this.props.questionnaires)
 
-		const data = this.props.questionnaires.buckets.map(d => {
+		console.log(this.props.aggregations)
+		if (!this.props.aggregations) {
+			return (<div>Loading...</div>)
+		}
+
+		const data = this.props.aggregations.questionnaire_number.buckets.map(d => {
 			return {
 				label: d.key,
 				value: d.doc_count
@@ -68,13 +72,13 @@ class BubbleGraph  extends Component {
 
 		return <BubbleChart
 			graph={{
-				zoom: 0.6,
-				offsetX: 0.1,
-    			offsetY: 0.15,
+				zoom: 1,
+				offsetX: 0,
+    			offsetY: 0,
 
 			}}
-		    width={this.props.width - 50}
-		    height={this.props.height - 50}
+		    width={450}
+		    height={450}
 		    showLegend={false}
 		    fontFamily="Arial"
 		    data={data}

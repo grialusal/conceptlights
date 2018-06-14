@@ -3,6 +3,8 @@ import { ReactiveBase, ReactiveComponent, SingleList, TextField, MultiDropdownLi
 
 import ReactDOM from "react-dom";
 import VisWrapper from './VisWrapper'
+import CountryMap from './CountryMap'
+import BubbleGraph from './BubbleGraph'
 
 import './App.css'
 
@@ -11,13 +13,13 @@ class App extends Component {
 
 	render() {
 		return (
-			<ReactiveBase
-				app="dboe"
-				url="http://localhost:9200"
-				type="dboe-type">
-				<div className="row">
-					<div className="col">
-						<div className="row">
+				<ReactiveBase
+					app="dboe"
+					url="http://localhost:9200"
+					type="dboe-type">
+					<div className="container">
+						<div className="header">Header</div>
+						<div className="searchbar">
 							<TextField
 								title="Main Lemma"
 							  	componentId="LemmaTextField"
@@ -36,8 +38,7 @@ class App extends Component {
 								// 	}}
 								// }
 							/>
-						</div>
-						<div className="row">
+
 							<TextField
 								title="Sense"
 							  	componentId="SenseTextField"
@@ -45,59 +46,71 @@ class App extends Component {
 							  	placeholder="Type a sense"
 							  	showClear={true}
 							/>
-						</div>
-						<div className="row">
+					
 							<MultiDropdownList
 							  componentId="PosDropdown"
 							  dataField="pos.keyword"
 							  title="Grammatical form"
 							/>
-						</div>
-					</div>
-					<div className="col">
-						<ReactiveComponent
-							componentId="ReactiveComponentWrapper"
-							defaultQuery={() => ({
-								size: 10000,
-								aggs: {
-									municipalities: {
-										terms: {
-											field: 'gemeinde.keyword',
-											size: 10000,
-										},
-										aggs: {
-											questionnaire_number: {
-												terms: {
-													field: 'questionnaire_number.keyword',
-												},
+
+							<ReactiveComponent 
+								componentId="BubbleSelector"
+								defaultQuery={() => ({
+									aggs: {
+										questionnaire_number: {
+											terms: {
+												field: 'questionnaire_number.keyword',
+												size: 100000
+											},
+											aggs: {
+												labels: {
+													terms: {
+														field: 'questionnaire_label.keyword',
+													},
+												}
 											}
 										}
 									},
-									questionnaire_number: {
-										terms: {
-											field: 'questionnaire_number.keyword',
-											size: 100000
-										},
-										aggs: {
-											labels: {
-												terms: {
-													field: 'questionnaire_label.keyword',
-												},
+								})}
+								react={{
+							      "and": ["LemmaTextField", "SenseTextField", "PosDropdown"]
+							    }}
+							>
+								
+								<BubbleGraph/>
+							</ReactiveComponent>
+						</div>
+
+						<div className="main">
+							<ReactiveComponent
+								componentId="MainComponentWrapper"
+								defaultQuery={() => ({
+									size: 10000,
+									aggs: {
+										municipalities: {
+											terms: {
+												field: 'gemeinde.keyword',
+												size: 10000,
+											},
+											aggs: {
+												questionnaire_number: {
+													terms: {
+														field: 'questionnaire_number.keyword',
+													},
+												}
 											}
 										}
-									}
-								},
-							})}
-							react={{
-						      "and": ["LemmaTextField", "SenseTextField", "PosDropdown"]
-						    }}
-						>
-							<VisWrapper width={1200} height={800}/>
-
-						</ReactiveComponent>
+									},
+								})}
+								react={{
+							      "and": ["LemmaTextField", "SenseTextField", "PosDropdown"]
+							    }}>
+								<CountryMap width={1400} height={450}/>
+							</ReactiveComponent>
+						</div>
+						<div className="footer">Footer</div>
 					</div>
-				</div>
-			</ReactiveBase>
+				</ReactiveBase>
 		);
 	}
 }
