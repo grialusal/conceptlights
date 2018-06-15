@@ -146,7 +146,7 @@ def main():
 						if match:
 							entry_obj['questionnaire_number'] = match.group(1)
 							entry_obj['question'] = match.group(2)
-							print(entry_obj['questionnaire_number'], entry_obj['question'])
+							
 							questionnaire_label = fragebogen_concepts_soup.find("label", text="Fragebogen " + entry_obj['questionnaire_number'])
 							if questionnaire_label:
 								questionnaire_head = questionnaire_label.parent					
@@ -210,7 +210,6 @@ def main():
 							geo_dict = process_listplace_node(listplace_soup, list_place)
 							entry_obj.update(geo_dict)		
 					
-					print(entry_obj)
 					actions.append({
 							'_index': 'dboe',
 							'_type': 'dboe-type',
@@ -219,6 +218,7 @@ def main():
 					if len(actions) > 50:
 						bulk(es, actions)
 						actions = []
+				
 		print('Done')
 
 	conn.close()
