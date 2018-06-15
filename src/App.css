@@ -1,6 +1,6 @@
 .container { 
   display: grid;
-  grid-template-rows:     70px 700px 70px;
+  grid-template-rows:     70px 900px 70px;
   grid-template-columns:  500px auto;
   grid-template-areas:
     "header header"
@@ -35,4 +35,14 @@
 .sankeycontainer { 
   width: 100%;
   height: 50%;
+}
+
+.links line {
+  stroke: #999;
+  stroke-opacity: 0.6;
+}
+
+.nodes circle {
+  stroke: #fff;
+  stroke-width: 1.5px;
 }

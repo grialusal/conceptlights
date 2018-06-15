@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import { ReactiveBase, ReactiveComponent, SingleList, TextField, MultiDropdownList} from '@appbaseio/reactivesearch'
 
-import ReactDOM from "react-dom";
+import ReactDOM from "react-dom"
+
 import VisWrapper from './VisWrapper'
 import CountryMap from './CountryMap'
+import ForceGraph from './ForceGraph'
 import BubbleGraph from './BubbleGraph'
 
 import './App.css'
@@ -83,7 +85,7 @@ class App extends Component {
 
 						<div className="main">
 							<ReactiveComponent
-								componentId="MainComponentWrapper"
+								componentId="MapComponentWrapper"
 								defaultQuery={() => ({
 									size: 10000,
 									aggs: {
@@ -91,13 +93,6 @@ class App extends Component {
 											terms: {
 												field: 'gemeinde.keyword',
 												size: 10000,
-											},
-											aggs: {
-												questionnaire_number: {
-													terms: {
-														field: 'questionnaire_number.keyword',
-													},
-												}
 											}
 										}
 									},
@@ -106,6 +101,38 @@ class App extends Component {
 							      "and": ["LemmaTextField", "SenseTextField", "PosDropdown"]
 							    }}>
 								<CountryMap width={1400} height={450}/>
+							</ReactiveComponent>
+							<ReactiveComponent
+								componentId="ForceComponentWrapper"
+								defaultQuery={() => ({
+									
+									size: 10000,
+									aggs: {
+										questionnaire_number: {
+											terms: {
+												field: 'questionnaire_number.keyword',
+												size: 10000
+											},
+										},
+										question_concepts: {
+											terms: {
+												field: 'question_concepts.keyword',
+												size: 10000,
+											},
+											aggs: {
+												questionnaire_number: {
+													terms: {
+														field: 'questionnaire_number.keyword',
+													}
+												}
+											}
+										}
+									},
+								})}
+								react={{
+							      "and": ["LemmaTextField", "SenseTextField", "PosDropdown"]
+							    }}>
+								<ForceGraph width={1400} height={450}/>
 							</ReactiveComponent>
 						</div>
 						<div className="footer">Footer</div>

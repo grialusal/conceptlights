@@ -58,7 +58,6 @@ class BubbleGraph  extends Component {
 
 	render () {
 
-		console.log(this.props.aggregations)
 		if (!this.props.aggregations) {
 			return (<div>Loading...</div>)
 		}
