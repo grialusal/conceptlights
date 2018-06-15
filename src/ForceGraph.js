@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import * as d3 from 'd3';
-
 import {event as currentEvent} from 'd3';
 
 Array.prototype.pairs = function (func) {
@@ -31,6 +30,7 @@ class ForceGraph extends Component {
 			console.log(nextProps.aggregations)
 			const nodes = nextProps.aggregations.questionnaire_number.buckets
 												.sort((a,b) => parseInt(a.key) - parseInt(b.key))
+
 			
 			let links = []
 			let number = 0
@@ -62,17 +62,21 @@ class ForceGraph extends Component {
 				}
 			})
 
+			const nodeRadius = d3.scaleLinear().domain(d3.extent(nodes, d=> d.doc_count)).range([2, 20])
+			const nodeColor = d3.scaleOrdinal(d3.schemeCategory20)
+
+
 			// this.setState({nodes: nodes, links: links})
-			console.log(number)
-			console.log(nodes, links)
-			// links = links.filter(d => d.size > 7)
+			
+			links = links.filter(d => d.size > 6)
 
 			const simulation  = d3.forceSimulation()
 							.force("link", d3.forceLink().id(d => d.key))
-							.force("charge", d3.forceManyBody().strength(-10))
+							.force("charge", d3.forceManyBody().strength(-5))
 							.force("center", d3.forceCenter(this.props.width / 2, this.props.height / 2))
 
-
+			console.log(nodes)
+		
 
 			const link = d3Graph.append("g")
 					.attr("class", "links")
@@ -86,7 +90,8 @@ class ForceGraph extends Component {
 					.selectAll("circle")
 					.data(nodes)
 					.enter().append("circle")
-					.attr("r", 5)
+					.style("fill", (d,i) => nodeColor(i) )
+					.attr("r", d => nodeRadius(d.doc_count))
 					.call(d3.drag()
 							.on("start", d => {
 								if (!currentEvent.active) simulation.alphaTarget(0.3).restart();
@@ -102,6 +107,12 @@ class ForceGraph extends Component {
 									d.fx = null;
 								  	d.fy = null;
 							})
+			node.append("title")
+				.text(d => {
+					if (d.labels.buckets.length > 0)
+						return `${d.labels.buckets[0].key} (${d.labels.buckets[0].doc_count} entries)`
+					else return "Unknown"
+			})
 
 			simulation.nodes(nodes).on("tick", () => {
 				link

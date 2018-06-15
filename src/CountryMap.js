@@ -39,7 +39,6 @@ class CountryMap extends Component {
   }
 
   render() {
-    console.log(this.props.aggregations)
     if (this.state.worldData.length == 0) {
       return (<div> Loading...</div>)
     }

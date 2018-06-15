@@ -55,32 +55,6 @@ class App extends Component {
 							  title="Grammatical form"
 							/>
 
-							<ReactiveComponent 
-								componentId="BubbleSelector"
-								defaultQuery={() => ({
-									aggs: {
-										questionnaire_number: {
-											terms: {
-												field: 'questionnaire_number.keyword',
-												size: 100000
-											},
-											aggs: {
-												labels: {
-													terms: {
-														field: 'questionnaire_label.keyword',
-													},
-												}
-											}
-										}
-									},
-								})}
-								react={{
-							      "and": ["LemmaTextField", "SenseTextField", "PosDropdown"]
-							    }}
-							>
-								
-								<BubbleGraph/>
-							</ReactiveComponent>
 						</div>
 
 						<div className="main">
@@ -113,6 +87,13 @@ class App extends Component {
 												field: 'questionnaire_number.keyword',
 												size: 10000
 											},
+											aggs: {
+												labels: {
+													terms: {
+														field: 'questionnaire_label.keyword',
+													},
+												}
+											}
 										},
 										question_concepts: {
 											terms: {
