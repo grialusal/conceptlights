@@ -69,7 +69,8 @@ class CountryMap extends Component {
                 style = {{
                   fill : applyColor(colorScale, d),
                   stroke : "black",
-                  strokeWidth : 0.5 
+                  strokeWidth : 0.5,
+                  strokeOpacity: 0.6
                 }}
                 onMouseOver={ () => this.handleRegionHover(i) }
               />
