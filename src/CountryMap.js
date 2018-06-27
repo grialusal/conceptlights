@@ -1,7 +1,7 @@
 import React, { Component } from "react"
 import { geoPath, geoConicEqualArea } from "d3-geo"
 import { feature } from "topojson-client"
-import { json } from "d3-fetch"
+import { json, csv} from "d3-fetch"
 import { scaleThreshold, scaleSequential } from "d3-scale"
 import { extent } from "d3-array"
 import { interpolatePiYG } from "d3-scale-chromatic"
@@ -11,6 +11,7 @@ class CountryMap extends Component {
     super(props)
     this.state = {
       worldData: [],
+      corresp: []
     }
     this.createMap = this.createMap.bind(this)
     this.handleRegionHover = this.handleRegionHover.bind(this)
@@ -22,6 +23,15 @@ class CountryMap extends Component {
             worldData: feature(geodata, geodata.objects.municipalities),
         })
       })
+
+    csv("./corresp.csv")
+      .then(corresp => {
+        console.log(corresp)
+        this.setState({
+          corresp: corresp
+        })
+      })
+
     // this.createMap()
   }
 
@@ -31,6 +41,10 @@ class CountryMap extends Component {
 
   handleRegionHover(regionIndex) {
     console.log("Hovered on a region: ", this.state.worldData.features[regionIndex])
+    if (this.props.aggregations) {
+        const item = this.props.aggregations.municipalities.buckets.filter(e => e.key == regionIndex).pop()
+        
+    }
   }
 
   createMap() {
@@ -42,6 +56,7 @@ class CountryMap extends Component {
     if (this.state.worldData.length == 0) {
       return (<div> Loading...</div>)
     }
+    console.log(this.props.aggregations)
     const projection = geoConicEqualArea().parallels([40,50]).rotate([-13.8,0]).fitSize([this.props.width, this.props.height], this.state.worldData)
     const path = geoPath().projection(projection)
     let colorScale = () => {}
@@ -51,7 +66,8 @@ class CountryMap extends Component {
 
     const applyColor = function(colorScale, d) {
       if (this.props.aggregations) {
-        const item = this.props.aggregations.municipalities.buckets.filter(e => e.key == d.id).pop()
+        const mysql_id = this.state.corresp.filter(e => parseInt(e.gis_gemeinde_id) == parseInt(d.id)).map(d => d.id)
+        const item = this.props.aggregations.municipalities.buckets.filter(e => e.key == mysql_id).pop()
         return item ? colorScale(item.doc_count) : "white"
       } else return "white"
     }.bind(this)
